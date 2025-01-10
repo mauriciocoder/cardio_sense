@@ -1,8 +1,8 @@
 # Project Name
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)  
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)  
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-repo/build.yml?branch=main)](https://github.com/your-repo/actions)  
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/your-repo/build.yml?branch=main)](https://github.com/your-repo/actions)
 
 A brief description of your project goes here. Include its purpose, features, and any important background information.
 
