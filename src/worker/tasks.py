@@ -1,14 +1,13 @@
 from . import celery, logger
 from jinja2 import Template
 
+from src.model.exams import CardioExam
+
 
 @celery.task
-def generate_report_task(data):
-    logger.info("generate_report_task called")
-    age = data["age"]
-    gender = data["gender"]
-    cholesterol_measurements = data["cholesterol_measurements"]
-
+def create_cardio_report_task(exam_dict: dict):
+    logger.info(f"Creating report for exam: {exam_dict}")
+    exam = CardioExam(**exam_dict)
     template = Template(
         """
     <html>
@@ -16,19 +15,9 @@ def generate_report_task(data):
             <h1>Cholesterol Report</h1>
             <p><strong>Age:</strong> {{ age }}</p>
             <p><strong>Gender:</strong> {{ gender }}</p>
-            <p><strong>Cholesterol Measurements:</strong></p>
-            <ul>
-                {% for measurement in cholesterol_measurements %}
-                <li>{{ measurement }} mm/dl</li>
-                {% endfor %}
-            </ul>
         </body>
     </html>
     """
     )
-    report = template.render(
-        age=age,
-        gender=gender,
-        cholesterol_measurements=cholesterol_measurements,
-    )
+    report = template.render(age=exam.age, gender=exam.sex)
     return report
