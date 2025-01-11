@@ -17,3 +17,34 @@ class CardioExam(BaseModel):
     exercise_angina: Annotated[str, StringConstraints(pattern=r"^(Y|N)$")]
     oldpeak: Annotated[float, Field(ge=0, le=6)]
     st_slope: Annotated[str, StringConstraints(pattern=r"^(Up|Flat|Down)$")]
+
+    @property
+    def sex_decoded(self) -> str:
+        return "Male" if self.sex == "M" else "Female"
+
+    @property
+    def chest_pain_type_decoded(self) -> str:
+        mapping = {
+            "ATA": "Atypical Angina",
+            "NAP": "Non-Anginal Pain",
+            "ASY": "Asymptomatic",
+            "TA": "Typical Angina",
+        }
+        return mapping.get(self.chest_pain_type, "Unknown")
+
+    @property
+    def resting_ecg_decoded(self) -> str:
+        mapping = {
+            "Normal": "Normal",
+            "ST": "Having ST-T wave abnormality",
+            "LVH": "Left Ventricular Hypertrophy",
+        }
+        return mapping.get(self.resting_ecg, "Unknown")
+
+    @property
+    def exercise_angina_decoded(self) -> str:
+        return "Yes" if self.exercise_angina == "Y" else "No"
+
+    @property
+    def fasting_bs_decoded(self) -> str:
+        return "> 120" if self.fasting_bs == 1 else "<= 120"

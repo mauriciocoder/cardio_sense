@@ -1,5 +1,8 @@
 version: '3.8'
 
+volumes:
+  data_path:
+
 services:
   api:
     build: .
@@ -19,6 +22,13 @@ services:
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_TEMPERATURE=${GROQ_TEMPERATURE}
+      - GROQ_MODEL_NAME=${GROQ_MODEL_NAME}
+      - CARDIO_SENSE_DATA_PATH=${CARDIO_SENSE_DATA_PATH}
+    volumes:
+      - data_path:${CARDIO_SENSE_DATA_PATH}  # Local directory bind mount
+
     command: celery -A src.worker.tasks worker --loglevel=info
     depends_on:
       - rabbitmq
@@ -29,7 +39,7 @@ services:
     ports:
       - "${CELERY_FLOWER_PORT}:${CELERY_FLOWER_PORT}"
     volumes:
-      - .:/src  # Make sure the src directory is copied # TODO: Evaluate if this is necessary. We are creating a volume locally!
+      - .:/src  # Make sure the src directory is copied (Why src???)
     working_dir: /src  # Set the working directory explicitly
     environment:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
