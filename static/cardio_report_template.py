@@ -114,3 +114,35 @@ cardio_report_template = """
 </body>
 </html>
 """
+
+llm_summary_template = """
+### INSTRUCTION:
+Your job is to generate a summary (DO NOT EXCEED 200 words) (NO PREAMBLE).
+Based on the cardio exam content, Include in the summary text:
+- The patient overall cardio health;
+- Any health risks the patient may run into;
+- If there is risk of developing cardiac disease, suggest medical specialties
+to the patient;
+
+Here is the cardio exam data dictionary:
+
+Age: age of the patient [years]
+Sex: sex of the patient [M: Male, F: Female]
+ChestPainType: chest pain type [TA: Typical Angina,
+ATA: Atypical Angina, NAP: Non-Anginal Pain,ASY: Asymptomatic]
+RestingBP: resting blood pressure [mm Hg]
+Cholesterol: serum cholesterol [mm/dl]
+FastingBS: fasting blood sugar [1: if FastingBS > 120 mg/dl, 0: otherwise]
+RestingECG: resting electrocardiogram results [Normal: Normal,
+ ST: having ST-T wave abnormality (T wave inversions and/or ST elevation or
+ depression of > 0.05 mV), LVH: showing probable or definite
+left ventricular hypertrophy by Estes' criteria]
+MaxHR: maximum heart rate achieved [Numeric value between 60 and 202]
+ExerciseAngina: exercise-induced angina [Y: Yes, N: No]
+Oldpeak: oldpeak = ST [Numeric value measured in depression]
+ST_Slope: the slope of the peak exercise ST segment [Up: upsloping,
+Flat: flat, Down: downsloping]
+
+### CARDIO EXAM CONTENT:
+{exam}
+"""

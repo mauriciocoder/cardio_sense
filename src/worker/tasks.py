@@ -24,12 +24,12 @@ def create_cardio_report_task(exam_dict: dict):
     return report_path, report_content
 
 
-def save_report(report):
+def save_report(report: str) -> str:
     task_id = current_task.request.id
     report_path = (
         os.environ.get("CARDIO_SENSE_DATA_PATH") + f"cardio_report_{task_id}.html"
     )
-    logger.info(f"file_path: {report_path}")
+    logger.info(f"Saving report to {report_path}")
     with open(report_path, "w") as f:
         f.write(report)
     logger.info(f"Report saved to {report_path}")

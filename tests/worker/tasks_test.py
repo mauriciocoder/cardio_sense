@@ -4,13 +4,11 @@ from src.worker.tasks import create_cardio_report_task
 
 
 def test_create_cardio_report_task(mocker):
-    # Mocking LLM().create_cardio_report_summary
     llm_mock = mocker.patch.object(
         LLM, "create_cardio_report_summary", return_value="Mocked summary"
     )
     mocker.patch("src.worker.tasks.save_report", return_value="mocked_file_path.html")
 
-    # Mocking create_cardio_report_task
     exam = CardioExam(
         age=25,
         sex="M",
