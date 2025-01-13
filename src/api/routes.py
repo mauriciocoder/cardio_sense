@@ -33,16 +33,6 @@ def cardio_report_task() -> Response:
             app.logger.info(f"Creating task for Exam #{i}: {exam}")
             app.logger.info(f"Exam #{i}: {dict(exam)}")
             task = create_cardio_report_task.delay(dict(exam))
-            ######################## TEST
-            """
-            counter = 0
-            while counter < 60:
-                x = AsyncResult(task.id, app=celery)
-                app.logger.info(f"Task #{task.id} | Task status: {x.state}")
-                counter += 1
-                time.sleep(1)
-            """
-            ######################## END
             app.logger.info(f"Task #{task.id} created for Exam #{i}")
             result.append(
                 {
@@ -62,10 +52,8 @@ def cardio_report_task() -> Response:
 @bp.route("/cardio_report_task/<task_id>", methods=["GET"])
 @swag_from("cardio_report_task_get_swag.yml")
 def get_cardio_report_task(task_id: str) -> Response:
+    # TODO: Add validation!! It should be a string here
     task = AsyncResult(task_id, app=celery)
-    app.logger.info("###########################################")
-    app.logger.info(f"Attributes of DatabaseBackend: {dir(task.backend)}")
-
     if task.state == "PENDING" and task.result is None:
         app.logger.warning(f"Task ID {task_id} not found.")
         abort(404)
@@ -81,6 +69,7 @@ def get_cardio_report_task(task_id: str) -> Response:
 @bp.route("/cardio_report_tasks", methods=["POST"])
 @swag_from("cardio_report_tasks_swag.yml")
 def get_cardio_report_tasks() -> Response:
+    # TODO: Add validation!! It should be all task ids
     task_ids = request.json
     tasks = []
     for task_id in task_ids:

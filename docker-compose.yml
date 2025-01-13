@@ -48,4 +48,4 @@ services:
   redis:
     image: redis:6-alpine  # Add Redis container
     ports:
-      - "6379:6379"  # Expose Redis port
+      - "${REDIS_PORT}:${REDIS_PORT}"  # Expose Redis port
