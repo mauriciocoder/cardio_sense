@@ -15,7 +15,7 @@ services:
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
     command: python -m flask run --host=${FLASK_HOST}
     depends_on:
-      - rabbitmq
+      - redis
 
   worker:
     build: .
@@ -28,10 +28,9 @@ services:
       - CARDIO_SENSE_DATA_PATH=${CARDIO_SENSE_DATA_PATH}
     volumes:
       - data_path:${CARDIO_SENSE_DATA_PATH}  # Local directory bind mount
-
-    command: celery -A src.worker.tasks worker --loglevel=info
+    command: celery -A src.worker.tasks worker --loglevel=DEBUG -E
     depends_on:
-      - rabbitmq
+      - redis
 
   flower:
     image: mher/flower:0.9.5
@@ -46,8 +45,7 @@ services:
     depends_on:
       - worker
 
-  rabbitmq:
-    image: rabbitmq:3-management
+  redis:
+    image: redis:6-alpine  # Add Redis container
     ports:
-      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
-      - "${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}"
+      - "6379:6379"  # Expose Redis port

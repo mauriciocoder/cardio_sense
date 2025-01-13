@@ -4,6 +4,7 @@ from pydantic import StringConstraints
 
 
 class CardioExam(BaseModel):
+    id: str
     age: Annotated[int, Field(strict=True, gt=18, le=100)]
     sex: Annotated[
         str, StringConstraints(strip_whitespace=True, to_upper=True, pattern=r"^(M|F)$")

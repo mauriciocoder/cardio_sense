@@ -1,0 +1,72 @@
+tags:
+  - Cardio Reports
+summary: Create a cardio report!
+description: Creates cardio report tasks for a list of exams provided in the request body.
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            example: EXAM-1010
+          age:
+            type: integer
+            example: 25
+          sex:
+            type: string
+            example: M
+          chest_pain_type:
+            type: string
+            example: ATA
+          resting_bp:
+            type: integer
+            example: 140
+          cholesterol:
+            type: integer
+            example: 289
+          fasting_bs:
+            type: integer
+            example: 0
+          resting_ecg:
+            type: string
+            example: Normal
+          max_hr:
+            type: integer
+            example: 172
+          exercise_angina:
+            type: string
+            example: N
+          oldpeak:
+            type: number
+            example: 0.5
+          st_slope:
+            type: string
+            example: Up
+        required:
+          - age
+          - sex
+          - chest_pain_type
+          - resting_bp
+responses:
+  201:
+    description: Tasks successfully created
+    examples:
+      application/json:
+        - exam_iloc: 0
+          task_id: abc123
+        - exam_iloc: 1
+          task_id: def456
+  400:
+    description: Invalid input data
+    examples:
+      application/json:
+        error: Invalid input data
+        details: []
+  500:
+    description: Internal server error
+    examples: {}

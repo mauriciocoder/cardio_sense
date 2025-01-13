@@ -1,0 +1,31 @@
+tags:
+  - Cardio Reports
+summary: Get cardio report results for multiple task IDs!!!
+description: Fetches the results of multiple cardio report tasks by a list of task IDs.
+parameters:
+  - name: task_ids
+    in: body
+    type: array
+    items:
+      type: string
+    required: true
+    description: A list of task IDs to retrieve the results for.
+responses:
+  "200":
+    description: Tasks found
+    examples:
+      application/json:
+        - task_id: abc123
+          result:
+            example_key: example_value
+          retries: 2
+        - task_id: def456
+          result:
+            example_key: example_value_2
+          retries: 3
+  "404":
+    description: One or more tasks not found
+    examples:
+      application/json:
+        - task_id: abc123
+        - task_id: def456

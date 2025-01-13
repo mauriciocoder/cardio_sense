@@ -1,7 +1,7 @@
 import os
 
 from . import logger
-from static.cardio_report_template import llm_summary_template
+from src.worker.cardio_report_template import llm_summary_template
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 

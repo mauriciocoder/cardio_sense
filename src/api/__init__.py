@@ -1,5 +1,6 @@
 import logging
 import os
+from flasgger import Swagger
 from flask import Flask
 from .routes import bp
 
@@ -7,7 +8,7 @@ from .routes import bp
 def create_app():
     app = Flask(__name__)
     app.config["CELERY_BROKER_URL"] = os.environ.get(
-        "CELERY_BROKER_URL", "amqp://localhost"
+        "CELERY_BROKER_URL", "amqp://rabbitmq"
     )
     app.config["CELERY_RESULT_BACKEND"] = os.environ.get(
         "CELERY_RESULT_BACKEND", "rpc://"
@@ -15,6 +16,12 @@ def create_app():
     app.register_blueprint(bp)
     app.logger.setLevel(logging.INFO)
     app.logger.info("Flask application initialized.")
+    swagger_config = {
+        "title": "SQUID-IQ - Cardio Sense API",
+        "version": "1.0.0",
+        "description": "",
+    }
+    Swagger(app, config=swagger_config, merge=True)
     return app
 
 

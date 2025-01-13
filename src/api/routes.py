@@ -1,4 +1,13 @@
-from flask import Request, Response, Blueprint, current_app as app, request, jsonify
+from flasgger import swag_from
+from flask import (
+    abort,
+    Request,
+    Response,
+    Blueprint,
+    current_app as app,
+    request,
+    jsonify,
+)
 
 from celery.result import AsyncResult
 from ..worker import celery
@@ -14,18 +23,30 @@ def load_exams(request: Request) -> list[CardioExam]:
     return TypeAdapter(list[CardioExam]).validate_json(request.data)
 
 
-@bp.route("/cardio_report", methods=["POST"])
-def create_cardio_report() -> Response:
+@bp.route("/cardio_report_task", methods=["POST"])
+@swag_from("cardio_report_task_swag.yml")
+def cardio_report_task() -> Response:
     try:
         exams = load_exams(request)
         result = []
         for i, exam in enumerate(exams):
             app.logger.info(f"Creating task for Exam #{i}: {exam}")
+            app.logger.info(f"Exam #{i}: {dict(exam)}")
             task = create_cardio_report_task.delay(dict(exam))
+            ######################## TEST
+            """
+            counter = 0
+            while counter < 60:
+                x = AsyncResult(task.id, app=celery)
+                app.logger.info(f"Task #{task.id} | Task status: {x.state}")
+                counter += 1
+                time.sleep(1)
+            """
+            ######################## END
             app.logger.info(f"Task #{task.id} created for Exam #{i}")
             result.append(
                 {
-                    "exam_iloc": i,
+                    "exam_id": exam.id,
                     "task_id": task.id,
                 }
             )
@@ -38,23 +59,37 @@ def create_cardio_report() -> Response:
         return jsonify({"error": "Invalid input data", "details": e.errors()}), 400
 
 
-@bp.route("/cardio_report/<task_id>", methods=["GET"])
-def get_cardio_report(task_id: str) -> Response:
+@bp.route("/cardio_report_task/<task_id>", methods=["GET"])
+@swag_from("cardio_report_task_get_swag.yml")
+def get_cardio_report_task(task_id: str) -> Response:
     task = AsyncResult(task_id, app=celery)
+    app.logger.info("###########################################")
+    app.logger.info(f"Attributes of DatabaseBackend: {dir(task.backend)}")
+
     if task.state == "PENDING" and task.result is None:
         app.logger.warning(f"Task ID {task_id} not found.")
-        return (
-            jsonify({"task_id": task.id}),
-            404,
+        abort(404)
+    response = {"status": task.state, "task_id": task.id}
+    if task.successful() or task.failed():
+        response["result"] = task.result
+    return (
+        jsonify(response),
+        200,
+    )
+
+
+@bp.route("/cardio_report_tasks", methods=["POST"])
+@swag_from("cardio_report_tasks_swag.yml")
+def get_cardio_report_tasks() -> Response:
+    task_ids = request.json
+    tasks = []
+    for task_id in task_ids:
+        task = AsyncResult(task_id, app=celery)
+        app.logger.info(
+            f"Task ID: {task.id}, Task State: {task.state}, Task Result: {task.result}"
         )
-    if task.successful() or task.failed:
-        return (
-            jsonify(
-                {
-                    "task_id": task.id,
-                    "result": task.result,
-                }
-            ),
-            200,
-        )
-    return jsonify({"status": task.status}), 200
+        response = {"status": task.state, "task_id": task.id}
+        if task.successful() or task.failed():
+            response["result"] = task.result
+        tasks.append(response)
+    return jsonify({"tasks": tasks}), 200

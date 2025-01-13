@@ -2,35 +2,6 @@ import pytest
 from flask import Flask
 from flask.testing import FlaskClient
 
-VALID_EXAM_DICT = {
-    "age": 25,
-    "sex": "M",
-    "chest_pain_type": "ATA",
-    "resting_bp": 140,
-    "cholesterol": 289,
-    "fasting_bs": 0,
-    "resting_ecg": "Normal",
-    "max_hr": 172,
-    "exercise_angina": "N",
-    "oldpeak": 0.5,
-    "st_slope": "Up",
-}
-
-
-INVALID_EXAM_DICT = {
-    "age": 17,  # Invalid age, below 18
-    "sex": "M",
-    "chest_pain_type": "ATA",
-    "resting_bp": 140,
-    "cholesterol": 289,
-    "fasting_bs": 0,
-    "resting_ecg": "Normal",
-    "max_hr": 172,
-    "exercise_angina": "N",
-    "oldpeak": 0,
-    "st_slope": "Up",
-}
-
 
 @pytest.fixture
 def app() -> Flask:
@@ -44,7 +15,25 @@ def client(app: Flask) -> FlaskClient:
     return app.test_client()
 
 
-def test_create_valid_cardio_report(client: FlaskClient, mocker):
+@pytest.fixture
+def exam_dict():
+    return {
+        "id": "EXAM-1011",
+        "age": 25,
+        "chest_pain_type": "ATA",
+        "cholesterol": 289,
+        "exercise_angina": "N",
+        "fasting_bs": 0,
+        "max_hr": 172,
+        "oldpeak": 0.5,
+        "resting_bp": 140,
+        "resting_ecg": "Normal",
+        "sex": "M",
+        "st_slope": "Up",
+    }
+
+
+def mock_create_cardio_report_task(mocker):
     # Mock Celery task creation (create_cardio_report_task.delay)
     mock_task = mocker.Mock()
     mock_task.id = "1"
@@ -52,10 +41,13 @@ def test_create_valid_cardio_report(client: FlaskClient, mocker):
     mocker.patch(
         "src.api.routes.create_cardio_report_task.delay", return_value=mock_task
     )
-    # Send a POST request to /cardio_report
+
+
+def test_create_valid_cardio_report_task(client: FlaskClient, mocker, exam_dict):
+    mock_create_cardio_report_task(mocker)
     response = client.post(
-        "/cardio_report",
-        json=[VALID_EXAM_DICT, VALID_EXAM_DICT],
+        "/cardio_report_task",
+        json=[exam_dict, exam_dict],
     )
     assert response.status_code == 201
     assert len(response.json) == 2
@@ -63,18 +55,12 @@ def test_create_valid_cardio_report(client: FlaskClient, mocker):
     assert response.json[1]["task_id"] == "1"
 
 
-def test_create_invalid_cardio_report(client: FlaskClient, mocker):
-    # Mock Celery task creation (create_cardio_report_task.delay)
-    mock_task = mocker.Mock()
-    mock_task.id = "1"
-    mock_task.result = None
-    mocker.patch(
-        "src.api.routes.create_cardio_report_task.delay", return_value=mock_task
-    )
-    # Send a POST request to /cardio_report
+def test_create_invalid_cardio_report_task(client: FlaskClient, mocker, exam_dict):
+    mock_create_cardio_report_task(mocker)
+    exam_dict["age"] = 17  # Invalid age
     response = client.post(
-        "/cardio_report",
-        json=[INVALID_EXAM_DICT, INVALID_EXAM_DICT],
+        "/cardio_report_task",
+        json=[exam_dict, exam_dict],
     )
     assert response.status_code == 400
     assert len(response.json) == 2

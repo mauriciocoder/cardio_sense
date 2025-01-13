@@ -7,21 +7,29 @@ from . import celery, logger
 from jinja2 import Template
 
 from src.model.exams import CardioExam
-from static.cardio_report_template import cardio_report_template
+from src.worker.cardio_report_template import cardio_report_template
 from src.worker.llm import LLM
 
 
-@celery.task
-def create_cardio_report_task(exam_dict: dict):
-    logger.info(f"Creating report for exam: {exam_dict}")
-    exam = CardioExam(**exam_dict)
+@celery.task(bind=True, max_retries=3, default_retry_delay=90)
+def create_cardio_report_task(self, exam_dict: dict):
+    try:
+        logger.info(f"Creating report for exam: {exam_dict}")
+        report_content = create_cardio_report_content(CardioExam(**exam_dict))
+        report_path = save_report(report_content)
+        return report_path
+    except Exception as e:
+        logger.error(f"Failed to create report for exam: {exam_dict}. Error: {e}")
+        self.retry(exc=e)
+
+
+def create_cardio_report_content(exam: CardioExam) -> str:
     template = Template(cardio_report_template)
     report_content = template.render(
         **dict(inspect.getmembers(exam)),
         summary=LLM().create_cardio_report_summary(exam),
     )
-    report_path = save_report(report_content)
-    return report_path, report_content
+    return report_content
 
 
 def save_report(report: str) -> str:
