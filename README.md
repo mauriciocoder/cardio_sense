@@ -1,11 +1,16 @@
 # Squid IQ - Cardio Sense Report Generator
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
 
 System designed to create cardiac health reports. Its primary purpose is to schedule tasks that process
 **patients' exam data**, collected from hospital devices, and generate detailed reports enriched by
 a summary **produced** by a cloud-based large language model (**Llama 3.3**).
+
+---
+
+## Business Presentation
+
+Check out the [deck](https://www.canva.com/design/DAGcMo5V-6c/5hWG3vIPV0ZdDwXStrN5wQ/view?utm_content=DAGcMo5V-6c&utm_campaign=designshare&utm_medium=link&utm_source=viewer).
 
 ---
 
@@ -171,3 +176,10 @@ To copy the report files to the host machine:
 ```bash
 $ sudo cp -r /YOUR_DOCKER_VOLUME_PATH /tmp/cardio_sense
 ```
+
+---
+
+
+#### Generated Cardio Report
+
+![Cardio Report](./images/medical_exam_report.png)
