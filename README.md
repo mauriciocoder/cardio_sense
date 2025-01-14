@@ -9,6 +9,12 @@ a summary **produced** by a cloud-based large language model (**Llama 3.3**).
 
 ---
 
+## System Architecture
+
+![System Architecture](./images/system-architecture.png)
+
+---
+
 ## Tech Features
 
 - **Containerized Architecture**: Encapsulates all application logic in Docker containers through docker-compose.
