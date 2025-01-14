@@ -1,0 +1,30 @@
+tags:
+  - Cardio Report Tasks
+summary: Get multiple cardio report task status
+description: Fetches the results of multiple cardio report tasks by a list of task IDs.
+parameters:
+  - name: task_ids
+    in: body
+    type: array
+    items:
+      type: string
+    required: true
+    description: A list of task IDs to retrieve the results for.
+responses:
+  200:
+    description: Tasks found
+    examples:
+      application/json:
+        - tasks:
+            - result: "/app/cardio_report_abc123.html"
+              status: "SUCCESS"
+              task_id: "abc123"
+            - result: "/app/cardio_report_abc456.html"
+              status: "SUCCESS"
+              task_id: "abc456"
+  400:
+    description: bad request
+    examples:
+      application/json:
+        error: Invalid input data
+        details: [ "Details in JSON format" ]

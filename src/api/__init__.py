@@ -5,7 +5,7 @@ from flask import Flask
 from .routes import bp
 
 
-def create_app():
+def create_app() -> Flask:
     app = Flask(__name__)
     app.config["CELERY_BROKER_URL"] = os.environ.get(
         "CELERY_BROKER_URL", "redis://redis:6379/0"

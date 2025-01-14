@@ -12,7 +12,7 @@ from src.worker.llm import LLM
 
 
 @celery.task(bind=True, max_retries=3, default_retry_delay=90)
-def create_cardio_report_task(self, exam_dict: dict):
+def create_cardio_report_task(self, exam_dict: dict) -> str:
     try:
         logger.info(f"Creating report for exam: {exam_dict}")
         report_content = create_cardio_report_content(CardioExam(**exam_dict))

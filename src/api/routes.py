@@ -24,7 +24,7 @@ def load_exams(request: Request) -> list[CardioExam]:
 
 
 @bp.route("/cardio_report_task", methods=["POST"])
-@swag_from("cardio_report_task_swag.yml")
+@swag_from("swag/cardio_report_task_swag.yml")
 def cardio_report_task() -> Response:
     try:
         exams = load_exams(request)
@@ -50,9 +50,10 @@ def cardio_report_task() -> Response:
 
 
 @bp.route("/cardio_report_task/<task_id>", methods=["GET"])
-@swag_from("cardio_report_task_get_swag.yml")
+@swag_from("swag/cardio_report_task_get_swag.yml")
 def get_cardio_report_task(task_id: str) -> Response:
-    # TODO: Add validation!! It should be a string here
+    if not task_id:
+        abort(404)
     task = AsyncResult(task_id, app=celery)
     if task.state == "PENDING" and task.result is None:
         app.logger.warning(f"Task ID {task_id} not found.")
@@ -66,11 +67,23 @@ def get_cardio_report_task(task_id: str) -> Response:
     )
 
 
-@bp.route("/cardio_report_tasks", methods=["POST"])
-@swag_from("cardio_report_tasks_swag.yml")
+def validate_task_ids(task_ids: list[str]):
+    if not isinstance(task_ids, list):
+        raise ValueError("task_ids must be a list")
+    if not task_ids:
+        raise ValueError("task_ids cannot be an empty list")
+    if not all(isinstance(task_id, str) for task_id in task_ids):
+        raise ValueError("All task_ids must be strings")
+
+
+@bp.route("/get_cardio_report_tasks", methods=["POST"])
+@swag_from("swag/get_cardio_report_tasks_swag.yml")
 def get_cardio_report_tasks() -> Response:
-    # TODO: Add validation!! It should be all task ids
     task_ids = request.json
+    try:
+        validate_task_ids(task_ids)
+    except ValueError as e:
+        return jsonify({"error": "Invalid input data", "details": str(e)}), 400
     tasks = []
     for task_id in task_ids:
         task = AsyncResult(task_id, app=celery)
